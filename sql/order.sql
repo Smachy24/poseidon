@@ -1,6 +1,6 @@
 CREATE TABLE order(
     id STRING PRIMARY KEY,
-    customer STRING,
+    customer STRING FOREIGN KEY REFERENCES customer(id),
     product STRING,
-    quantity INT
+    quantity INT,
 );
