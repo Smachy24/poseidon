@@ -18,8 +18,14 @@ def update(table, id, data):
         compt+=1
 
     sql += f" WHERE id={id};"
-    print(sql)
-    cur.close()
+    try:
+         cur.execute(sql)
+
+    except Exception as e:
+        print(f"Attention ! Erreur : {e}")
+
+    finally:
+        cur.close()
 
 update("client", "test", {"a": "1", "b": "2"})
 
@@ -35,3 +41,25 @@ def insert(table, data):
     cur.close()
     
 insert("client", {"truc1": "bbbbb", "truc2": "aaaa"})
+def delete(table, id):
+    cur = conn.cursor()
+    sql = f"DELETE FROM {table} WHERE id = {id};"
+    cur.close()
+
+def select(nom_table):
+    try:
+        cursor = conn.cursor()
+        query = f"SELECT * FROM {nom_table};"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
+
+    except Exception as e:
+        print(f"Attention ! Erreur : {e}")
+
+    finally:
+        cursor.close()
+
+select("customer_family")
+    
