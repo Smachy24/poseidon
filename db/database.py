@@ -22,3 +22,16 @@ def update(table, id, data):
     cur.close()
 
 update("client", "test", {"a": "1", "b": "2"})
+
+def insert(table, data):
+    cur = conn.cursor()
+    keys = data.keys()
+    
+    values = list(map(str, data.values()))
+    sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(values)});" 
+
+    
+    print(sql)
+    cur.close()
+    
+insert("client", {"truc1": "bbbbb", "truc2": "aaaa"})
