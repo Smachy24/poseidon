@@ -19,7 +19,8 @@ def update(table, id, data):
 
     sql += f" WHERE id={id};"
     try:
-         cur.execute(sql)
+        cur.execute(sql)
+        conn.commit()
 
     except Exception as e:
         print(f"Attention ! Erreur : {e}")
@@ -37,6 +38,7 @@ def insert(table, data):
 
     try:
         cur.execute(sql)
+        conn.commit()
         
     except Exception as e :
         print(f"Attention ! Erreur : {e}")
@@ -54,6 +56,7 @@ def delete(table, id):
     
     try:
         cur.execute(sql)
+        conn.commit()
         
     except Exception as e :
         print(f"Attention ! Erreur : {e}")
