@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.customer
     name character varying(50),
     family uuid NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT code UNIQUE (code)
+    CONSTRAINT customer_code UNIQUE (code)
 );
 
 CREATE TABLE IF NOT EXISTS public.customer_family
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.customer_family
     code character varying(20) NOT NULL,
     description character varying(255),
     PRIMARY KEY (id),
-    CONSTRAINT code UNIQUE (code)
+    CONSTRAINT customer_family_code UNIQUE (code)
 );
 
 CREATE TABLE IF NOT EXISTS public."order"
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS public.product
     code character varying(20) NOT NULL,
     designation character varying(255),
     PRIMARY KEY (id),
-    CONSTRAINT code UNIQUE (code)
+    CONSTRAINT product_code UNIQUE (code)
 );
 
 ALTER TABLE IF EXISTS public.customer
