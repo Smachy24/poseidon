@@ -1,11 +1,12 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
+
+from routers import customer
 
 app = FastAPI()
-router = APIRouter()
 
 
-@router.get("/", tags=["test"])
-async def read_root():
+@app.get("/")
+def read_root():
     return {"Hello": "World"}
 
-app.include_router(router)
+app.include_router(customer.router)
