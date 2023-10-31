@@ -18,8 +18,14 @@ def update(table, id, data):
         compt+=1
 
     sql += f" WHERE id={id};"
-    print(sql)
-    cur.close()
+    try:
+         cur.execute(sql)
+
+    except Exception as e:
+        print(f"Attention ! Erreur : {e}")
+
+    finally:
+        cur.close()
 
 update("client", "test", {"a": "1", "b": "2"})
 
