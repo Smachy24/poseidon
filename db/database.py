@@ -27,7 +27,6 @@ def update(table, id, data):
     finally:
         cur.close()
 
-update("client", "test", {"a": "1", "b": "2"})
 
 def insert(table, data):
     cur = conn.cursor()
@@ -36,14 +35,32 @@ def insert(table, data):
     values = list(map(str, data.values()))
     sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(values)});" 
 
+    try:
+        cur.execute(sql)
+        
+    except Exception as e :
+        print(f"Attention ! Erreur : {e}")
+        
+    finally:
+        cur.close()
     
     print(sql)
     cur.close()
     
-insert("client", {"truc1": "bbbbb", "truc2": "aaaa"})
+
 def delete(table, id):
     cur = conn.cursor()
     sql = f"DELETE FROM {table} WHERE id = {id};"
+    
+    try:
+        cur.execute(sql)
+        
+    except Exception as e :
+        print(f"Attention ! Erreur : {e}")
+        
+    finally:
+        cur.close()
+    
     cur.close()
 
 def select(nom_table):
