@@ -22,3 +22,8 @@ def update(table, id, data):
     cur.close()
 
 update("client", "test", {"a": "1", "b": "2"})
+
+def delete(table, id):
+    cur = conn.cursor()
+    sql = f"DELETE FROM {table} WHERE id = {id};"
+    cur.close()
