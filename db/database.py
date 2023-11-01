@@ -1,9 +1,79 @@
 import psycopg2
-import constants
+from db import constants
 
 # Connect to your postgres DB
 conn = psycopg2.connect(f"dbname={constants.DBNAME} user={constants.USER} password={constants.PASSWORD}")
+
 print("Connection réussie")
+
+def select(table):
+    try:
+        cursor = conn.cursor()
+        query = f"SELECT * FROM {table};"
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        data = []
+
+        column_names = [desc[0] for desc in cursor.description]
+
+        for row in rows:
+            row_data = {}
+            for i in range(len(column_names)):
+                column_name = column_names[i]
+                column_value = row[i]
+                row_data[column_name] = column_value
+            data.append(row_data)
+
+        return {"results": data}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+    finally:
+        cursor.close()
+
+
+
+def select_one(table, pk_column, pk_value):
+    try:
+        cursor = conn.cursor()
+        query = f"SELECT * FROM {table} WHERE {pk_column} = %s;"
+        cursor.execute(query, (pk_value,))
+        result = cursor.fetchone()
+
+        column_names = [desc[0] for desc in cursor.description]
+        row_data = {}
+        for i in range(len(column_names)):
+            column_name = column_names[i]
+            column_value = result[i]
+            row_data[column_name] = column_value
+        return {"result": row_data}
+
+
+    except Exception as e:
+        return {"error": str(e)}
+
+    finally:
+        cursor.close()
+
+
+def insert(table, data):
+    try:
+        cur = conn.cursor()
+        keys = data.keys()
+        values = list(data.values())
+        sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES {tuple(values)};" 
+        cur.execute(sql)
+        conn.commit()
+        return {"message": "Données insérées avec succès"}
+    
+    except Exception as e :
+        return {"error": str(e)}
+        
+    finally:
+        cur.close()
+
+
 
 def update(table, id, data):
     cur = conn.cursor()
@@ -29,25 +99,9 @@ def update(table, id, data):
         cur.close()
 
 
-def insert(table, data):
-    cur = conn.cursor()
-    keys = data.keys()
-    
-    values = list(map(str, data.values()))
-    sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({','.join(values)});" 
 
-    try:
-        cur.execute(sql)
-        conn.commit()
-        
-    except Exception as e :
-        print(f"Attention ! Erreur : {e}")
-        
-    finally:
-        cur.close()
     
-    print(sql)
-    cur.close()
+
     
 
 def delete(table, id):
@@ -66,20 +120,6 @@ def delete(table, id):
     
     cur.close()
 
-def select(nom_table):
-    try:
-        cursor = conn.cursor()
-        query = f"SELECT * FROM {nom_table};"
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row)
 
-    except Exception as e:
-        print(f"Attention ! Erreur : {e}")
 
-    finally:
-        cursor.close()
-
-select("customer_family")
     
