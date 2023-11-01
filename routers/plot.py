@@ -37,8 +37,8 @@ async def create_plot(plot: Plot):
     return db.insert("plot", plot.dict())
 
 @router.put("/plots/{plot_number}")
-async def replace_plot(plot_number):
-    pass
+async def replace_plot(plot_number, plot: Plot):
+    return db.update_put("plot", "plot_number", plot_number, plot.dict())
 
 @router.delete("/plots/{plot_number}")
 async def delete_plot(plot_number):

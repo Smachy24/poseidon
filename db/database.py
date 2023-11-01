@@ -73,28 +73,23 @@ def insert(table, data):
     finally:
         cur.close()
 
-
-
-def update(table, id, data):
-    cur = conn.cursor()
-    sql = f"UPDATE {table} SET"
-
-    compt = 0
-    for key, value in data.items():
-        if compt<len(data)-1:
-            sql+=f" {key} = {value},"
-        else:
-            sql+=f" {key} = {value}"
-        compt+=1
-
-    sql += f" WHERE id={id};"
+def update_put(table, pk_column, pk_value, data):
+    
     try:
-        cur.execute(sql)
+        cur = conn.cursor()
+
+        update_columns = []
+        for key in data.keys():
+            update_columns.append(f"{key} = %s")
+
+        conditions = ', '.join(update_columns)
+        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column} = {pk_value};"
+
+        cur.execute(sql, list(data.values()))
         conn.commit()
-
+        return {"status": "Success", "message": "Update successful"}
     except Exception as e:
-         return {"error": str(e)}
-
+        return {"error": str(e)}
     finally:
         cur.close()
 
