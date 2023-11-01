@@ -3,62 +3,154 @@
 BEGIN;
 
 
-CREATE TABLE IF NOT EXISTS public.customer
+CREATE TABLE IF NOT EXISTS public.plot
 (
-    id uuid NOT NULL,
-    code character varying(20) NOT NULL,
-    name character varying(50),
-    family uuid NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT customer_code UNIQUE (code)
+    plot_number smallint NOT NULL,
+    surface numeric,
+    plot_name character varying(20),
+    coordinates character varying(20),
+    PRIMARY KEY (plot_number)
 );
 
-CREATE TABLE IF NOT EXISTS public.customer_family
+CREATE TABLE IF NOT EXISTS public.culture
 (
-    id uuid NOT NULL,
-    code character varying(20) NOT NULL,
-    description character varying(255),
-    PRIMARY KEY (id),
-    CONSTRAINT customer_family_code UNIQUE (code)
+    id_culture smallint NOT NULL,
+    plot_number smallint NOT NULL,
+    production_code smallint NOT NULL,
+    start_date date,
+    end_date date,
+    quantity_harvested numeric NOT NULL,
+    PRIMARY KEY (id_culture)
 );
 
-CREATE TABLE IF NOT EXISTS public."order"
+CREATE TABLE IF NOT EXISTS public.production
 (
-    id uuid NOT NULL,
-    customer uuid NOT NULL,
-    product uuid NOT NULL,
-    quantity integer NOT NULL,
-    PRIMARY KEY (id)
+    production_code smallint NOT NULL,
+    unit character varying(20) NOT NULL,
+    production_name character varying(20),
+    PRIMARY KEY (production_code)
 );
 
-CREATE TABLE IF NOT EXISTS public.product
+CREATE TABLE IF NOT EXISTS public.unit
 (
-    id uuid NOT NULL,
-    code character varying(20) NOT NULL,
-    designation character varying(255),
-    PRIMARY KEY (id),
-    CONSTRAINT product_code UNIQUE (code)
+    unit character varying(20) NOT NULL,
+    PRIMARY KEY (unit)
 );
 
-ALTER TABLE IF EXISTS public.customer
-    ADD CONSTRAINT family FOREIGN KEY (family)
-    REFERENCES public.customer_family (id) MATCH SIMPLE
+CREATE TABLE IF NOT EXISTS public.spread
+(
+    id_fertilizer smallint NOT NULL,
+    plot_number smallint NOT NULL,
+    date date NOT NULL,
+    quantity_spread numeric NOT NULL,
+    PRIMARY KEY (id_fertilizer, plot_number, date)
+);
+
+CREATE TABLE IF NOT EXISTS public.date
+(
+    date date NOT NULL,
+    PRIMARY KEY (date)
+);
+
+CREATE TABLE IF NOT EXISTS public.fertilizer
+(
+    id_fertilizer smallint NOT NULL,
+    unit character varying(20) NOT NULL,
+    fertilizer_name character varying(20),
+    PRIMARY KEY (id_fertilizer)
+);
+
+CREATE TABLE IF NOT EXISTS public.possess
+(
+    id_fertilizer smallint NOT NULL,
+    element_code character varying(5) NOT NULL,
+    value character varying(255),
+    PRIMARY KEY (id_fertilizer, element_code)
+);
+
+CREATE TABLE IF NOT EXISTS public.chimical_element
+(
+    element_code character varying(5) NOT NULL,
+    unit character varying(20) NOT NULL,
+    wording_element character varying(20),
+    PRIMARY KEY (element_code)
+);
+
+ALTER TABLE IF EXISTS public.culture
+    ADD CONSTRAINT culture_plot_number FOREIGN KEY (plot_number)
+    REFERENCES public.plot (plot_number) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."order"
-    ADD CONSTRAINT customer FOREIGN KEY (customer)
-    REFERENCES public.customer (id) MATCH SIMPLE
+ALTER TABLE IF EXISTS public.culture
+    ADD CONSTRAINT culture_production_code FOREIGN KEY (production_code)
+    REFERENCES public.production (production_code) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
 
 
-ALTER TABLE IF EXISTS public."order"
-    ADD CONSTRAINT product FOREIGN KEY (product)
-    REFERENCES public.product (id) MATCH SIMPLE
+ALTER TABLE IF EXISTS public.production
+    ADD CONSTRAINT production_unit FOREIGN KEY (unit)
+    REFERENCES public.unit (unit) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.spread
+    ADD CONSTRAINT spread_plot_number FOREIGN KEY (plot_number)
+    REFERENCES public.plot (plot_number) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.spread
+    ADD CONSTRAINT spread_id_fertilizer FOREIGN KEY (id_fertilizer)
+    REFERENCES public.fertilizer (id_fertilizer) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.spread
+    ADD CONSTRAINT spread_date FOREIGN KEY (date)
+    REFERENCES public.date (date) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.fertilizer
+    ADD CONSTRAINT fertilizer_unit FOREIGN KEY (unit)
+    REFERENCES public.unit (unit) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.possess
+    ADD CONSTRAINT possess_id_fertilizer FOREIGN KEY (id_fertilizer)
+    REFERENCES public.fertilizer (id_fertilizer) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.possess
+    ADD CONSTRAINT posess_element_code FOREIGN KEY (element_code)
+    REFERENCES public.chimical_element (element_code) MATCH SIMPLE
+    ON UPDATE NO ACTION
+    ON DELETE NO ACTION
+    NOT VALID;
+
+
+ALTER TABLE IF EXISTS public.chimical_element
+    ADD CONSTRAINT chimical_element_unit FOREIGN KEY (unit)
+    REFERENCES public.unit (unit) MATCH SIMPLE
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
