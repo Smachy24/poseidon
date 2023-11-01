@@ -65,7 +65,7 @@ def insert(table, data):
         sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES {tuple(values)};" 
         cur.execute(sql)
         conn.commit()
-        return {"message": "Données insérées avec succès"}
+        return {"status": "Sucess", "message": "Insertion successful"}
     
     except Exception as e :
         return {"error": str(e)}
@@ -93,32 +93,26 @@ def update(table, id, data):
         conn.commit()
 
     except Exception as e:
-        print(f"Attention ! Erreur : {e}")
+         return {"error": str(e)}
 
     finally:
         cur.close()
 
 
-
-    
-
-    
-
-def delete(table, id):
-    cur = conn.cursor()
-    sql = f"DELETE FROM {table} WHERE id = {id};"
-    
+def delete(table, pk_column, pk_value):
+  
     try:
+        cur = conn.cursor()
+        sql = f"DELETE FROM {table} WHERE {pk_column} = {pk_value};"
         cur.execute(sql)
         conn.commit()
-        
+        return {"status": "Sucess", "message": "Deletion successful"}
     except Exception as e :
-        print(f"Attention ! Erreur : {e}")
-        
+         return {"error": str(e)}
+            
     finally:
         cur.close()
-    
-    cur.close()
+
 
 
 
