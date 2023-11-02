@@ -42,9 +42,8 @@ def select(table):
 
         result = {"results": data}
 
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select' (Call {select_function_call_count}) called with parameters: {table}. Returned: {result}\n")
 
         return result
@@ -79,11 +78,8 @@ def select_one(table, pk_column, pk_value):
             column_value = result[i]
             row_data[column_name] = column_value
 
-        
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) called with parameters: {table, pk_column, pk_value}. Returned: {row_data}\n")
 
 
@@ -96,6 +92,7 @@ def select_one(table, pk_column, pk_value):
         error_result = {"error": str(e)}
 
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
@@ -114,10 +111,10 @@ def insert(table, data):
          
         cur.execute(sql, values)
         conn.commit()
-        
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+ 
 
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'insert' (Call {insert_function_call_count}) called with parameters: {table, data}. Returned: Succesfull \n")
 
         
@@ -128,6 +125,7 @@ def insert(table, data):
         error_result = {"error": str(e)}
 
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'insert' (Call {insert_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
@@ -150,9 +148,10 @@ def update(table, pk_column, pk_value, data):
         cur.execute(sql, list(data.values()) + [pk_value])
         conn.commit()
       
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+       
         
         with open('log/agriculture.log', 'a') as log_file:
+           current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
            log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
       
         return {"status": "Success", "message": "Update successful"}
@@ -160,6 +159,7 @@ def update(table, pk_column, pk_value, data):
         error_result = {"error": str(e)}
 
         with open('log/agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
@@ -175,8 +175,9 @@ def delete(table, pk_column, pk_value):
         sql = f"DELETE FROM {table} WHERE {pk_column} = %s;"
         cur.execute(sql, [pk_value])
         conn.commit()
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
         with open('log/agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) called with parameters: {table, id}. Returned: Succesfull \n")
 
         return {"status": "Sucess", "message": "Deletion successful"}
@@ -186,6 +187,7 @@ def delete(table, pk_column, pk_value):
         error_result = {"error": str(e)}
 
         with open('log/agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
