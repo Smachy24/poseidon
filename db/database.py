@@ -63,6 +63,9 @@ def select(table):
 
 
 def select_one(table, pk_column, pk_value):
+    global select_one_function_call_count
+    select_one_function_call_count += 1
+
     try:
         cursor = conn.cursor()
         query = f"SELECT * FROM {table} WHERE {pk_column} = %s;"
