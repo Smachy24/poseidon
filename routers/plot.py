@@ -37,6 +37,7 @@ async def get_plot_by_number(plot_number):
         @param (int) plot_number :  Plot number
         @return (json) : Message of success or error
     """
+    
     return db.select_one("plot", "plot_number", plot_number)
 
 @router.post("/plots")
