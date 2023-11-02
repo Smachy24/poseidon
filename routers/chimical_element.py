@@ -8,27 +8,27 @@ class ChimicalElement(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/chimical_elements")
+async def get_chimical_element(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+    result = db.select("chimical_element")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for chimical_element'}
 
-#     plots = result['results']
+    chimical_element = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'element_code'
+    if desc:
+        chimical_element = sorted(chimical_element, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        chimical_element = sorted(chimical_element, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        chimical_element = chimical_element[:limit]
 
-#     return {'results': plots}
+    return {'results': chimical_element}
 
 @router.get("/chimical-elements/{element_code}")
 async def get_chimical_element_by_element_code(element_code):
