@@ -3,10 +3,8 @@ from pydantic import BaseModel
 from db import database as db
 
 class Plot(BaseModel):
-    plot_number: int
-    surface: int
-    plot_name: str
-    coordinates: str
+    data: dict
+
 
 router = APIRouter()
 
@@ -38,7 +36,11 @@ async def create_plot(plot: Plot):
 
 @router.put("/plots/{plot_number}")
 async def replace_plot(plot_number, plot: Plot):
-    return db.update_put("plot", "plot_number", plot_number, plot.dict())
+    return db.update("plot", "plot_number", plot_number, plot.data)
+
+@router.patch("/plots/{plot_number}")
+async def modify_plot(plot_number, plot: Plot):
+    return db.update("plot", "plot_number", plot_number, plot.data)
 
 @router.delete("/plots/{plot_number}")
 async def delete_plot(plot_number):

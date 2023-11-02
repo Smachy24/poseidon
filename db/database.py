@@ -73,7 +73,7 @@ def insert(table, data):
     finally:
         cur.close()
 
-def update_put(table, pk_column, pk_value, data):
+def update(table, pk_column, pk_value, data):
     
     try:
         cur = conn.cursor()
@@ -92,6 +92,7 @@ def update_put(table, pk_column, pk_value, data):
         return {"error": str(e)}
     finally:
         cur.close()
+        
 
 
 def delete(table, pk_column, pk_value):
