@@ -8,27 +8,27 @@ class Spread(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/spreads")
+async def get_spread(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+    result = db.select("spread")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for spread'}
 
-#     plots = result['results']
+    spread = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'id_fertilizer'  # I keep id_fertilizer here
+    if desc:
+        spread = sorted(spread, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        spread = sorted(spread, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        spread = spread[:limit]
 
-#     return {'results': plots}
+    return {'results': spread}
 
 @router.get("/spread/{id_fertilizer}")
 async def get_spread_by_id_fertilizer(id_fertilizer):
