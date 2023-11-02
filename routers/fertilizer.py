@@ -8,27 +8,27 @@ class Fertilizer(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/fertilizers")
+async def get_fertilizers(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+    result = db.select("fertilizer")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for fertilizers'}
 
-#     plots = result['results']
+    fertilizers = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'id_fertilizer'
+    if desc:
+        fertilizers = sorted(fertilizers, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        fertilizers = sorted(fertilizers, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        fertilizers = fertilizers[:limit]
 
-#     return {'results': plots}
+    return {'results': fertilizers}
 
 @router.get("/fertilizers/{id_fertilizer}")
 async def get_fertilizer_by_id_fertilizer(id_fertilizer):
