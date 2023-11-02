@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routers import plot, culture, date, unit, production, fertilizer
+from routers import plot, culture, date, unit, production, fertilizer, chimical_element
 
 app = FastAPI()
 
@@ -15,3 +15,4 @@ app.include_router(date.router)
 app.include_router(unit.router)
 app.include_router(production.router)
 app.include_router(fertilizer.router)
+app.include_router(chimical_element.router)
