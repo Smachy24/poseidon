@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from pydantic import BaseModel
 from db import database as db
-
+from .user import get_current_user,User
 class Possess(BaseModel):
     data: dict
 
@@ -9,7 +9,7 @@ class Possess(BaseModel):
 router = APIRouter()
 
 @router.get("/possess")
-async def get_possess(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+async def get_possess(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
     result = db.select("possess")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -31,7 +31,7 @@ async def get_possess(limit: int = Query(None, gt=0), desc: bool = False, asc: b
     return {'results': possess}
 
 @router.get("/possess/{id_fertilizer}")
-async def get_possess_by_id_fertilizer(id_fertilizer):
+async def get_possess_by_id_fertilizer(id_fertilizer, current_user: User = Depends(get_current_user)):
     """
         Get possess by id_fertilizer
         @param (int) id_fertilizer :  possess code
@@ -40,7 +40,7 @@ async def get_possess_by_id_fertilizer(id_fertilizer):
     return db.select_one("possess", "id_fertilizer", id_fertilizer)
 
 @router.post("/possess")
-async def create_possess(possess: Possess):
+async def create_possess(possess: Possess, current_user: User = Depends(get_current_user)):
     """
         Insert a new possess
         @param (Possess) possess : possess got in body
@@ -49,11 +49,11 @@ async def create_possess(possess: Possess):
     return db.insert("possess", possess.data)
 
 @router.put("/possess/{id_fertilizer}")
-async def replace_possess(id_fertilizer, possess: Possess):
+async def replace_possess(id_fertilizer, possess: Possess, current_user: User = Depends(get_current_user)):
     return db.update("possess", "id_fertilizer", id_fertilizer, possess.data)
 
 @router.patch("/possess/{id_fertilizer}")
-async def modify_possess(id_fertilizer, possess: Possess):
+async def modify_possess(id_fertilizer, possess: Possess, current_user: User = Depends(get_current_user)):
     return db.update("possess", "id_fertilizer", id_fertilizer, possess.data)
 
 @router.delete("/possess/{id_fertilizer}")
