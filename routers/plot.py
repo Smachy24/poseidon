@@ -21,7 +21,10 @@ async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: boo
     
     # Sorting logic based on 'desc' and 'asc'
     key_to_sort_by = 'plot_number'
-    if desc:
+    
+    if desc and asc:
+        return{'error': "Only asc OR desc is possible to true"}
+    elif desc:
         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
     elif asc:
         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
