@@ -9,7 +9,7 @@ class ChimicalElement(BaseModel):
 
 router = APIRouter()
 
-@router.get("/chimical_elements")
+@router.get("/chimical-elements")
 async def get_chimical_element(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
     result = db.select("chimical_element")
 
