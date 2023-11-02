@@ -36,7 +36,7 @@ router = APIRouter()
 async def get_date_by_date(date):
     """
         Get date by date
-        @param (int) date :  Date
+        @param (str) date :  Date
         @return (json) : Message of success or error
     """
 
@@ -48,7 +48,7 @@ async def get_date_by_date(date):
 async def create_date(date: Date):
     """
         Insert a new date
-        @param (Plot) plot :  date got in body
+        @param (Date) date :  date got in body
         @return (json) : Message of success or error
     """
 
@@ -67,7 +67,7 @@ async def replace_date(date_value, date: Date):
     return db.update("date", "date", date_value, date.data)
 
 @router.patch("/dates/{date_value}")
-async def modify_plot(date_value, date: Date):
+async def modify_date(date_value, date: Date):
     date.data["date"] = datetime.strptime(date.data["date"], "%d-%m-%Y").date()
     date.data["date"] = date.data["date"].strftime("%Y-%m-%d")
 
@@ -76,10 +76,10 @@ async def modify_plot(date_value, date: Date):
     return db.update("date", "date", date_value, date.data)
 
 @router.delete("/dates/{date_value}")
-async def delete_plot(date_value):
+async def delete_datet(date_value):
     """
-        Delete plot by plot_number
-        @param (int) plot_number :  Plot number
+        Delete date by date
+        @param (Date) date_value : Date
         @return (json) : Message of success or error
     """
     return db.delete("date", "date", date_value)
