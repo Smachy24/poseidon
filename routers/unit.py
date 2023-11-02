@@ -57,7 +57,7 @@ async def modify_unit(unit_value, unit: Unit):
     return db.update("unit", "unit", unit_value, unit.data)
 
 @router.delete("/units/{unit_value}")
-async def delete_culture(unit_value):
+async def delete_unit(unit_value):
     """
         Delete unit by unit value
         @param (str) unit_value :  unit value

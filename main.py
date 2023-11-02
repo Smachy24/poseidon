@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routers import plot, culture, date, unit
+from routers import plot, culture, date, unit, production
 
 app = FastAPI()
 
@@ -13,3 +13,4 @@ app.include_router(plot.router)
 app.include_router(culture.router)
 app.include_router(date.router)
 app.include_router(unit.router)
+app.include_router(production.router)
