@@ -99,8 +99,8 @@ def delete(table, pk_column, pk_value):
   
     try:
         cur = conn.cursor()
-        sql = f"DELETE FROM {table} WHERE {pk_column} = {pk_value};"
-        cur.execute(sql)
+        sql = f"DELETE FROM {table} WHERE {pk_column} = %s;"
+        cur.execute(sql, [pk_value])
         conn.commit()
         return {"status": "Sucess", "message": "Deletion successful"}
     except Exception as e :

@@ -75,11 +75,11 @@ async def modify_plot(date_value, date: Date):
     date_value = date_value.strftime("%Y-%m-%d")
     return db.update("date", "date", date_value, date.data)
 
-@router.delete("/cultures/{id_culture}")
-async def delete_plot(id_culture):
+@router.delete("/dates/{date_value}")
+async def delete_plot(date_value):
     """
         Delete plot by plot_number
         @param (int) plot_number :  Plot number
         @return (json) : Message of success or error
     """
-    return db.delete("culture", "id_culture", id_culture)
+    return db.delete("date", "date", date_value)
