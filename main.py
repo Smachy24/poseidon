@@ -10,10 +10,5 @@ app = FastAPI()
 def read_root():
     return {"Hello": "World"}
 
-
-
-
-
-
 app.include_router(user.router)
 app.include_router(plot.router)
