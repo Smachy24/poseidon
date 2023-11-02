@@ -10,27 +10,27 @@ class Date(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/dates")
+async def get_date(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+    result = db.select("date")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for date'}
 
-#     plots = result['results']
+    date = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'date'
+    if desc:
+        date = sorted(date, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        date = sorted(date, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        date = date[:limit]
 
-#     return {'results': plots}
+    return {'results': date}
 
 @router.get("/dates/{date}")
 async def get_date_by_date(date):
