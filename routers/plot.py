@@ -49,15 +49,15 @@ async def create_plot(plot: Plot,current_user: User = Depends(get_current_user))
     return db.insert("plot", plot.data)
 
 @router.put("/plots/{plot_number}")
-async def replace_plot(plot_number, plot: Plot):
+async def replace_plot(plot_number, plot: Plot, current_user: User = Depends(get_current_user)):
     return db.update("plot", "plot_number", plot_number, plot.data)
 
 @router.patch("/plots/{plot_number}")
-async def modify_plot(plot_number, plot: Plot):
+async def modify_plot(plot_number, plot: Plot, current_user: User = Depends(get_current_user)):
     return db.update("plot", "plot_number", plot_number, plot.data)
 
 @router.delete("/plots/{plot_number}")
-async def delete_plot(plot_number):
+async def delete_plot(plot_number, current_user: User = Depends(get_current_user)):
     """
         Delete plot by plot_number
         @param (int) plot_number :  Plot number
