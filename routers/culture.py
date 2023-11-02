@@ -8,27 +8,27 @@ class Culture(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/cultures")
+async def get_culture(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+    result = db.select("culture")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for culture'}
 
-#     plots = result['results']
+    culture = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'id_culture'
+    if desc:
+        culture = sorted(culture, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        culture = sorted(culture, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        culture = culture[:limit]
 
-#     return {'results': plots}
+    return {'results': culture}
 
 @router.get("/cultures/{id_culture}")
 async def get_culture_by_id(id_culture):
