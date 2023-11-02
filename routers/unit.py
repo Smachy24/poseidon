@@ -9,13 +9,20 @@ class Unit(BaseModel):
 router = APIRouter()
 
 @router.get("/units")
-async def get_unit(limit: int = Query(None, gt=0)):
+async def get_unit(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
     result = db.select("unit")
 
     if not isinstance(result, dict) or 'results' not in result:
         return {'error': 'Invalid data structure for unit'}
 
     unit = result['results']
+    
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'unit'
+    if desc:
+        unit = sorted(unit, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        unit = sorted(unit, key=lambda x: x.get(key_to_sort_by, 0))
 
     # we verify the input for limit
     if limit and limit > 0:
