@@ -109,10 +109,11 @@ def insert(table, data):
         cur = conn.cursor()
         keys = data.keys()
         values = list(data.values())
-        sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES {tuple(values)};" 
-        cur.execute(sql)
+        placeholders = ','.join(['%s'] * len(values))
+        sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({placeholders});"
+         
+        cur.execute(sql, values)
         conn.commit()
-
         
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -120,7 +121,7 @@ def insert(table, data):
             log_file.write(f"{current_time} - Function 'insert' (Call {insert_function_call_count}) called with parameters: {table, data}. Returned: Succesfull \n")
 
         
-        return {"message": "Données insérées avec succès"}
+        return {"status": "Sucess", "message": "Insertion successful"}
 
     
     except Exception as e:
@@ -134,30 +135,27 @@ def insert(table, data):
     finally:
         cur.close()
 
-
-
-def update(table, id, data):
-    cur = conn.cursor()
-    sql = f"UPDATE {table} SET"
-
-    compt = 0
-    for key, value in data.items():
-        if compt<len(data)-1:
-            sql+=f" {key} = {value},"
-        else:
-            sql+=f" {key} = {value}"
-        compt+=1
-
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    sql += f" WHERE id={id};"
+def update(table, pk_column, pk_value, data):
     try:
-        cur.execute(sql)
-        conn.commit()
-        with open('log/agriculture.log', 'a') as log_file:
-            log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
-        
+        cur = conn.cursor()
+       
+        update_columns = []
+        for key in data.keys():
+            update_columns.append(f"{key} = %s")
 
+        conditions = ', '.join(update_columns)
+
+
+        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column} = %s;"
+        cur.execute(sql, list(data.values()) + [pk_value])
+        conn.commit()
+      
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        with open('log/agriculture.log', 'a') as log_file:
+           log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
+      
+        return {"status": "Success", "message": "Update successful"}
     except Exception as e:
         error_result = {"error": str(e)}
 
@@ -171,22 +169,18 @@ def update(table, id, data):
 
 
 
-    
-
-    
-
-def delete(table, id):
-    cur = conn.cursor()
-    sql = f"DELETE FROM {table} WHERE id = {id};"
-    
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+def delete(table, pk_column, pk_value):
     try:
-        cur.execute(sql)
+        cur = conn.cursor()
+        sql = f"DELETE FROM {table} WHERE {pk_column} = %s;"
+        cur.execute(sql, [pk_value])
         conn.commit()
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open('log/agriculture.log', 'a') as log_file:
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) called with parameters: {table, id}. Returned: Succesfull \n")
-        
+
+        return {"status": "Sucess", "message": "Deletion successful"}
+
         
     except Exception as e:
         error_result = {"error": str(e)}
@@ -195,11 +189,10 @@ def delete(table, id):
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
-        
+
     finally:
         cur.close()
-    
-    cur.close()
+
 
 
 

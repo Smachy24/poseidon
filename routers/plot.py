@@ -5,10 +5,8 @@ from db import database as db
 from .user import get_current_user,get_current_active_user,User
 
 class Plot(BaseModel):
-    plot_number: int
-    surface: int
-    plot_name: str
-    coordinates: str
+    data: dict
+
 
 router = APIRouter()
 
@@ -48,4 +46,21 @@ async def get_plot_by_number(plot_number, current_user: User = Depends(get_curre
 
 @router.post("/plots")
 async def create_plot(plot: Plot,current_user: User = Depends(get_current_user)):
-    return db.insert("plot", plot.dict())
+    return db.insert("plot", plot.data)
+
+@router.put("/plots/{plot_number}")
+async def replace_plot(plot_number, plot: Plot):
+    return db.update("plot", "plot_number", plot_number, plot.data)
+
+@router.patch("/plots/{plot_number}")
+async def modify_plot(plot_number, plot: Plot):
+    return db.update("plot", "plot_number", plot_number, plot.data)
+
+@router.delete("/plots/{plot_number}")
+async def delete_plot(plot_number):
+    """
+        Delete plot by plot_number
+        @param (int) plot_number :  Plot number
+        @return (json) : Message of success or error
+    """
+    return db.delete("plot", "plot_number", plot_number)
