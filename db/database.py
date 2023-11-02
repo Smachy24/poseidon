@@ -1,7 +1,7 @@
 import psycopg2
 from db import constants
 import datetime
-
+from fastapi import HTTPException
 # Connect to your postgres DB
 conn = psycopg2.connect(f"dbname={constants.DBNAME} user={constants.USER} password={constants.PASSWORD}")
 
@@ -86,16 +86,21 @@ def select_one(table, pk_column, pk_value):
         return {"result": row_data}
 
 
-
-
-    except Exception as e:
-        error_result = {"error": str(e)}
+    except psycopg2.errors.InvalidTextRepresentation  as e:
 
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {error_result}\n")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"{pk_column} must be a number"})
 
-        return error_result
+
+    except TypeError as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"{pk_column} : {pk_value} does not exist"})
 
     finally:
         cursor.close()
