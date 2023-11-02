@@ -11,7 +11,7 @@ class Plot(BaseModel):
 router = APIRouter()
 
 @router.get("/plots")
-async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
+async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = False):
     result = db.select("plot")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -21,6 +21,9 @@ async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: boo
     
     # Sorting logic based on 'desc' and 'asc'
     key_to_sort_by = 'plot_number'
+    
+    if asc == False and desc == False:
+        asc = True
     
     if desc and asc:
         return{'error': "Only asc OR desc is possible to true"}
