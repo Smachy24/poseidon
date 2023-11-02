@@ -2,7 +2,7 @@ from fastapi import APIRouter, Query, Depends
 from typing import Annotated
 from pydantic import BaseModel
 from db import database as db
-from .user import get_current_user,get_current_active_user,User
+from .user import get_current_user,User
 
 class Plot(BaseModel):
     data: dict
