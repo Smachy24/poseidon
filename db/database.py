@@ -65,7 +65,7 @@ def insert(table, data):
         sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES {tuple(values)};" 
         cur.execute(sql)
         conn.commit()
-        return {"message": "Données insérées avec succès"}
+        return {"status": "Sucess", "message": "Insertion successful"}
     
     except Exception as e :
         return {"error": str(e)}
@@ -73,52 +73,42 @@ def insert(table, data):
     finally:
         cur.close()
 
-
-
-def update(table, id, data):
-    cur = conn.cursor()
-    sql = f"UPDATE {table} SET"
-
-    compt = 0
-    for key, value in data.items():
-        if compt<len(data)-1:
-            sql+=f" {key} = {value},"
-        else:
-            sql+=f" {key} = {value}"
-        compt+=1
-
-    sql += f" WHERE id={id};"
+def update(table, pk_column, pk_value, data):
+    
     try:
-        cur.execute(sql)
-        conn.commit()
+        cur = conn.cursor()
 
+        update_columns = []
+        for key in data.keys():
+            update_columns.append(f"{key} = %s")
+
+        conditions = ', '.join(update_columns)
+        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column} = {pk_value};"
+
+        cur.execute(sql, list(data.values()))
+        conn.commit()
+        return {"status": "Success", "message": "Update successful"}
     except Exception as e:
-        print(f"Attention ! Erreur : {e}")
-
+        return {"error": str(e)}
     finally:
         cur.close()
+        
 
 
-
-    
-
-    
-
-def delete(table, id):
-    cur = conn.cursor()
-    sql = f"DELETE FROM {table} WHERE id = {id};"
-    
+def delete(table, pk_column, pk_value):
+  
     try:
+        cur = conn.cursor()
+        sql = f"DELETE FROM {table} WHERE {pk_column} = {pk_value};"
         cur.execute(sql)
         conn.commit()
-        
+        return {"status": "Sucess", "message": "Deletion successful"}
     except Exception as e :
-        print(f"Attention ! Erreur : {e}")
-        
+         return {"error": str(e)}
+            
     finally:
         cur.close()
-    
-    cur.close()
+
 
 
 
