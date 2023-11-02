@@ -66,9 +66,14 @@ async def replace_date(date_value, date: Date):
 
     return db.update("date", "date", date_value, date.data)
 
-@router.patch("/cultures/{id_culture}")
-async def modify_plot(id_culture, culture: Date):
-    return db.update("culture", "id_culture", id_culture, culture.data)
+@router.patch("/dates/{date_value}")
+async def modify_plot(date_value, date: Date):
+    date.data["date"] = datetime.strptime(date.data["date"], "%d-%m-%Y").date()
+    date.data["date"] = date.data["date"].strftime("%Y-%m-%d")
+
+    date_value = datetime.strptime(date_value, "%d-%m-%Y").date()
+    date_value = date_value.strftime("%Y-%m-%d")
+    return db.update("date", "date", date_value, date.data)
 
 @router.delete("/cultures/{id_culture}")
 async def delete_plot(id_culture):
