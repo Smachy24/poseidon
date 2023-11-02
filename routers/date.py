@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
+from datetime import datetime
 from db import database as db
 
-class Culture(BaseModel):
+
+class Date(BaseModel):
     data: dict
 
 
@@ -30,37 +32,49 @@ router = APIRouter()
 
 #     return {'results': plots}
 
-@router.get("/cultures/{id_culture}")
-async def get_culture_by_id(id_culture):
+@router.get("/dates/{date}")
+async def get_date_by_date(date):
     """
-        Get culture by id_culture
-        @param (int) id_culture :  Culture id
+        Get date by date
+        @param (int) date :  Date
         @return (json) : Message of success or error
     """
-    return db.select_one("culture", "id_culture", id_culture)
 
-@router.post("/cultures")
-async def create_culture(culture: Culture):
+    date = datetime.strptime(date, "%d-%m-%Y").date()
+    date = date.strftime("%Y-%m-%d")
+    return db.select_one("date", "date", date)
+
+@router.post("/dates")
+async def create_date(date: Date):
     """
-        Insert a new culture
-        @param (Culture) culture :  culture got in body
+        Insert a new date
+        @param (Plot) plot :  date got in body
         @return (json) : Message of success or error
     """
-    return db.insert("culture", culture.data)
 
-@router.put("/cultures/{id_culture}")
-async def replace_culture(id_culture, culture: Culture):
-    return db.update("culture", "id_culture", id_culture, culture.data)
+    date.data["date"] = datetime.strptime(date.data["date"], "%d-%m-%Y").date()
+    date.data["date"] = date.data["date"].strftime("%Y-%m-%d")
+    return db.insert("date", date.data)
+
+@router.put("/dates/{date_value}")
+async def replace_date(date_value, date: Date):
+    date.data["date"] = datetime.strptime(date.data["date"], "%d-%m-%Y").date()
+    date.data["date"] = date.data["date"].strftime("%Y-%m-%d")
+
+    date_value = datetime.strptime(date_value, "%d-%m-%Y").date()
+    date_value = date_value.strftime("%Y-%m-%d")
+
+    return db.update("date", "date", date_value, date.data)
 
 @router.patch("/cultures/{id_culture}")
-async def modify_culture(id_culture, culture: Culture):
+async def modify_plot(id_culture, culture: Date):
     return db.update("culture", "id_culture", id_culture, culture.data)
 
 @router.delete("/cultures/{id_culture}")
-async def delete_culture(id_culture):
+async def delete_plot(id_culture):
     """
-        Delete culture by id_culture
-        @param (int) id_culture :  culture id
+        Delete plot by plot_number
+        @param (int) plot_number :  Plot number
         @return (json) : Message of success or error
     """
     return db.delete("culture", "id_culture", id_culture)

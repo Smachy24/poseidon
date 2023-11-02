@@ -62,8 +62,10 @@ def insert(table, data):
         cur = conn.cursor()
         keys = data.keys()
         values = list(data.values())
-        sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES {tuple(values)};" 
-        cur.execute(sql)
+        placeholders = ','.join(['%s'] * len(values))
+        sql = f"INSERT INTO {table} ({','.join(keys)}) VALUES ({placeholders});"
+         
+        cur.execute(sql, values)
         conn.commit()
         return {"status": "Sucess", "message": "Insertion successful"}
     
@@ -74,25 +76,23 @@ def insert(table, data):
         cur.close()
 
 def update(table, pk_column, pk_value, data):
-    
     try:
         cur = conn.cursor()
-
+       
         update_columns = []
         for key in data.keys():
             update_columns.append(f"{key} = %s")
 
         conditions = ', '.join(update_columns)
-        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column} = {pk_value};"
 
-        cur.execute(sql, list(data.values()))
+        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column} = %s;"
+        cur.execute(sql, list(data.values()) + [pk_value])
         conn.commit()
         return {"status": "Success", "message": "Update successful"}
     except Exception as e:
         return {"error": str(e)}
     finally:
         cur.close()
-        
 
 
 def delete(table, pk_column, pk_value):
