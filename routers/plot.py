@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
+from typing import Annotated
 from pydantic import BaseModel
 from db import database as db
+from .user import get_current_user,get_current_active_user,User
 
 class Plot(BaseModel):
     plot_number: int
@@ -11,7 +13,7 @@ class Plot(BaseModel):
 router = APIRouter()
 
 @router.get("/plots")
-async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = False):
+async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = False, current_user: User = Depends(get_current_user)):
     result = db.select("plot")
 
     if not isinstance(result, dict) or 'results' not in result:
