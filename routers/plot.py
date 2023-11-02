@@ -46,7 +46,7 @@ async def create_plot(plot: Plot):
         @param (Plot) plot :  plot got in body
         @return (json) : Message of success or error
     """
-    return db.insert("plot", plot.dict())
+    return db.insert("plot", plot.data)
 
 @router.put("/plots/{plot_number}")
 async def replace_plot(plot_number, plot: Plot):
