@@ -150,7 +150,7 @@ def update(table, pk_column, pk_value, data):
       
        
         
-        with open('log/agriculture.log', 'a') as log_file:
+        with open('agriculture.log', 'a') as log_file:
            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
            log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
       
@@ -158,7 +158,7 @@ def update(table, pk_column, pk_value, data):
     except Exception as e:
         error_result = {"error": str(e)}
 
-        with open('log/agriculture.log', 'a') as log_file:
+        with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) encountered an error: {error_result}\n")
 
@@ -176,7 +176,7 @@ def delete(table, pk_column, pk_value):
         cur.execute(sql, [pk_value])
         conn.commit()
         
-        with open('log/agriculture.log', 'a') as log_file:
+        with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) called with parameters: {table, id}. Returned: Succesfull \n")
 
@@ -186,8 +186,7 @@ def delete(table, pk_column, pk_value):
     except Exception as e:
         error_result = {"error": str(e)}
 
-        with open('log/agriculture.log', 'a') as log_file:
-            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open('agriculture.log', 'a') as log_file:
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
