@@ -43,9 +43,9 @@ async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: boo
 
 
 @router.get("/plots/{plot_number}")
-async def get_plot_by_number(plot_number):
+async def get_plot_by_number(plot_number, current_user: User = Depends(get_current_user)):
     return db.select_one("plot", "plot_number", plot_number)
 
 @router.post("/plots")
-async def create_plot(plot: Plot):
+async def create_plot(plot: Plot,current_user: User = Depends(get_current_user)):
     return db.insert("plot", plot.dict())
