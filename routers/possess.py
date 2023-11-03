@@ -1,37 +1,37 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from pydantic import BaseModel
 from db import database as db
-
+from .user import get_current_user,User
 class Possess(BaseModel):
     data: dict
 
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/possess")
+async def get_possess(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+    result = db.select("possess")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for possess'}
 
-#     plots = result['results']
+    possess = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'id_fertilizer' # I keep id_fertilizer here
+    if desc:
+        possess = sorted(possess, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        possess = sorted(possess, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        possess = possess[:limit]
 
-#     return {'results': plots}
+    return {'results': possess}
 
 @router.get("/possess/{id_fertilizer}")
-async def get_possess_by_id_fertilizer(id_fertilizer):
+async def get_possess_by_id_fertilizer(id_fertilizer, current_user: User = Depends(get_current_user)):
     """
         Get possess by id_fertilizer
         @param (int) id_fertilizer :  possess code
@@ -40,7 +40,7 @@ async def get_possess_by_id_fertilizer(id_fertilizer):
     return db.select_one("possess", "id_fertilizer", id_fertilizer)
 
 @router.post("/possess")
-async def create_possess(possess: Possess):
+async def create_possess(possess: Possess, current_user: User = Depends(get_current_user)):
     """
         Insert a new possess
         @param (Possess) possess : possess got in body
@@ -49,11 +49,11 @@ async def create_possess(possess: Possess):
     return db.insert("possess", possess.data)
 
 @router.put("/possess/{id_fertilizer}")
-async def replace_possess(id_fertilizer, possess: Possess):
+async def replace_possess(id_fertilizer, possess: Possess, current_user: User = Depends(get_current_user)):
     return db.update("possess", "id_fertilizer", id_fertilizer, possess.data)
 
 @router.patch("/possess/{id_fertilizer}")
-async def modify_possess(id_fertilizer, possess: Possess):
+async def modify_possess(id_fertilizer, possess: Possess, current_user: User = Depends(get_current_user)):
     return db.update("possess", "id_fertilizer", id_fertilizer, possess.data)
 
 @router.delete("/possess/{id_fertilizer}")
