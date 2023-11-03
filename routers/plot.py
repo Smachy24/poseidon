@@ -11,7 +11,7 @@ class Plot(BaseModel):
 router = APIRouter()
 
 @router.get("/plots")
-async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = False, current_user: User = Depends(get_current_user)):
+async def get_plots(limit: int = Query(None, gt=0),surface: int = Query(None, gt=0), desc: bool = False, asc: bool = False, current_user: User = Depends(get_current_user)):
     result = db.select("plot")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -36,6 +36,10 @@ async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: boo
     # we verify the input for limit
     if limit and limit > 0:
         plots = plots[:limit]
+        
+    # we verify the input for surface
+    if surface and surface > 0:
+        plots = [plot for plot in plots if plot['surface'] == surface]
 
     return {'results': plots}
 
