@@ -9,7 +9,7 @@ class Production(BaseModel):
 router = APIRouter()
 
 @router.get("/productions")
-async def get_production(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+async def get_production(limit: int = Query(None, gt=0),unit: str = None , desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
     result = db.select("production")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -27,6 +27,10 @@ async def get_production(limit: int = Query(None, gt=0), desc: bool = False, asc
     # we verify the input for limit
     if limit and limit > 0:
         production = production[:limit]
+    
+    # we verify the input for unit
+    if unit:
+        production = [x for x in production if x['unit'] == unit]
 
     return {'results': production}
 
