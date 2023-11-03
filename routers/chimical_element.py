@@ -1,9 +1,17 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
+
 from pydantic import BaseModel
 from db import database as db
 from .user import get_current_user,User
 
 class ChimicalElement(BaseModel):
+
+    """
+    Represents a chemical element.
+
+    @param (dict) data: Dictionary containing data for the chemical element.
+    """
+
     data: dict
 
 
@@ -11,6 +19,18 @@ router = APIRouter()
 
 @router.get("/chimical-elements")
 async def get_chimical_element(limit: int = Query(None, gt=0),unit: str = None , desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+ 
+    """
+    Get a list of chemical elements.
+
+    @param (int) limit: Maximum number of elements to retrieve.
+    @param (bool) desc: Sort in descending order.
+    @param (bool) asc: Sort in ascending order.
+    @param (User) current_user: Current user object obtained from dependency.
+
+    @return (dict) : Dictionary containing a list of chemical elements.
+    """
+
     result = db.select("chimical_element")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -55,11 +75,42 @@ async def create_chimical_element(chimical_element: ChimicalElement, current_use
 
 @router.put("/chimical-elements/{element_code}")
 async def replace_unit(element_code, chimical_element: ChimicalElement, current_user: User = Depends(get_current_user)):
-    return db.update("chimical_element", "element_code", element_code, chimical_element.data)
+    
+    """
+    Replace unit for a chemical element.
+
+    @param (int) element_code: Element code of the chemical element.
+    @param (ChimicalElement) chimical_element : Chemical element data.
+    @param (User) current_user: Current user object obtained from dependency.
+
+    @return (json) : Message indicating success or error.
+    """
+
+    res = db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": ["unit", "wording_element"]})
+
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
 
 @router.patch("/chimical-elements/{element_code}")
 async def modify_chimical_element(element_code, chimical_element: ChimicalElement, current_user: User = Depends(get_current_user)):
-    return db.update("chimical_element", "element_code", element_code, chimical_element.data)
+
+    """
+    Modify a chemical element.
+
+    @param (int) element_code: Element code of the chemical element.
+    @param (ChimicalElement) chimical_element : Chemical element data.
+    @param (User) current_user: Current user object obtained from dependency.
+
+    @return (json) : Message indicating success or error.
+    """
+    
+    res =  db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": []})
+
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
+
 
 @router.delete("/chimical-elements/{element_code}")
 async def delete_chimical_element(element_code, current_user: User = Depends(get_current_user)):
