@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from pydantic import BaseModel
 from datetime import datetime
 from db import database as db
-
+from .user import User,get_current_user
 
 class Date(BaseModel):
     data: dict
@@ -10,30 +10,30 @@ class Date(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/dates")
+async def get_date(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+    result = db.select("date")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for date'}
 
-#     plots = result['results']
+    date = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'date'
+    if desc:
+        date = sorted(date, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        date = sorted(date, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        date = date[:limit]
 
-#     return {'results': plots}
+    return {'results': date}
 
 @router.get("/dates/{date}")
-async def get_date_by_date(date):
+async def get_date_by_date(date, current_user: User = Depends(get_current_user)):
     """
         Get date by date
         @param (str) date :  Date
@@ -45,7 +45,7 @@ async def get_date_by_date(date):
     return db.select_one("date", "date", date)
 
 @router.post("/dates")
-async def create_date(date: Date):
+async def create_date(date: Date, current_user: User = Depends(get_current_user)):
     """
         Insert a new date
         @param (Date) date :  date got in body
@@ -57,7 +57,7 @@ async def create_date(date: Date):
     return db.insert("date", date.data)
 
 @router.put("/dates/{date_value}")
-async def replace_date(date_value, date: Date):
+async def replace_date(date_value, date: Date, current_user: User = Depends(get_current_user)):
     date.data["date"] = datetime.strptime(date.data["date"], "%d-%m-%Y").date()
     date.data["date"] = date.data["date"].strftime("%Y-%m-%d")
 
@@ -67,7 +67,7 @@ async def replace_date(date_value, date: Date):
     return db.update("date", "date", date_value, date.data, {"pk_columns": [], "columns": ["date"]})
 
 @router.patch("/dates/{date_value}")
-async def modify_date(date_value, date: Date):
+async def modify_date(date_value, date: Date, current_user: User = Depends(get_current_user)):
     date.data["date"] = datetime.strptime(date.data["date"], "%d-%m-%Y").date()
     date.data["date"] = date.data["date"].strftime("%Y-%m-%d")
 
@@ -76,7 +76,7 @@ async def modify_date(date_value, date: Date):
     return db.update("date", "date", date_value, date.data, {"pk_columns": [], "columns": ["date"]})
 
 @router.delete("/dates/{date_value}")
-async def delete_datet(date_value):
+async def delete_datet(date_value, current_user: User = Depends(get_current_user)):
     """
         Delete date by date
         @param (Date) date_value : Date

@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+
 from pydantic import BaseModel
 from db import database as db
+from .user import get_current_user,User
 
 class ChimicalElement(BaseModel):
     data: dict
@@ -8,30 +10,30 @@ class ChimicalElement(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/chimical-elements")
+async def get_chimical_element(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+    result = db.select("chimical_element")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for chimical_element'}
 
-#     plots = result['results']
+    chimical_element = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'element_code'
+    if desc:
+        chimical_element = sorted(chimical_element, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        chimical_element = sorted(chimical_element, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        chimical_element = chimical_element[:limit]
 
-#     return {'results': plots}
+    return {'results': chimical_element}
 
 @router.get("/chimical-elements/{element_code}")
-async def get_chimical_element_by_element_code(element_code):
+async def get_chimical_element_by_element_code(element_code, current_user: User = Depends(get_current_user)):
     """
         Get chimical_element by element_code
         @param (int) element_code :  chimical_element id
@@ -40,7 +42,7 @@ async def get_chimical_element_by_element_code(element_code):
     return db.select_one("chimical_element", "element_code", element_code)
 
 @router.post("/chimical-elements")
-async def create_chimical_element(chimical_element: ChimicalElement):
+async def create_chimical_element(chimical_element: ChimicalElement, current_user: User = Depends(get_current_user)):
     """
         Insert a new chimical_element
         @param (ChimicalElement) chimical_element :  chimical_element got in body
@@ -49,7 +51,7 @@ async def create_chimical_element(chimical_element: ChimicalElement):
     return db.insert("chimical_element", chimical_element.data)
 
 @router.put("/chimical-elements/{element_code}")
-async def replace_unit(element_code, chimical_element: ChimicalElement):
+async def replace_unit(element_code, chimical_element: ChimicalElement, current_user: User = Depends(get_current_user)):
     res = db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": ["unit", "wording_element"]})
 
     if "error_key" in res:
@@ -57,7 +59,7 @@ async def replace_unit(element_code, chimical_element: ChimicalElement):
     return res
 
 @router.patch("/chimical-elements/{element_code}")
-async def modify_chimical_element(element_code, chimical_element: ChimicalElement):
+async def modify_chimical_element(element_code, chimical_element: ChimicalElement, current_user: User = Depends(get_current_user)):
     res =  db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": []})
 
     if "error_key" in res:
@@ -66,7 +68,7 @@ async def modify_chimical_element(element_code, chimical_element: ChimicalElemen
 
 
 @router.delete("/chimical-elements/{element_code}")
-async def delete_chimical_element(element_code):
+async def delete_chimical_element(element_code, current_user: User = Depends(get_current_user)):
     """
         Delete chimical_element by element_code
         @param (int) element_code : chimical_element id

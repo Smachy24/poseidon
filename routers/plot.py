@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from typing import Annotated
 from pydantic import BaseModel
 from db import database as db
-from .user import get_current_user,get_current_active_user,User
+from .user import get_current_user,User
 
 class Plot(BaseModel):
     data: dict
@@ -49,21 +49,22 @@ async def create_plot(plot: Plot,current_user: User = Depends(get_current_user))
     return db.insert("plot", plot.data)
 
 @router.put("/plots/{plot_number}")
-async def replace_plot(plot_number, plot: Plot):
+async def replace_plot(plot_number, plot: Plot, current_user: User = Depends(get_current_user)):
     res =  db.update("plot", "plot_number", plot_number, plot.data, {"pk_columns": ["plot_number"], "columns": ["surface", "plot_name", "coordinates"]})
     if "error_key" in res:
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
 @router.patch("/plots/{plot_number}")
-async def modify_plot(plot_number, plot: Plot):
+async def modify_plot(plot_number, plot: Plot, current_user: User = Depends(get_current_user)):
     res =  db.update("plot", "plot_number", plot_number, plot.data, {"pk_columns": ["plot_number"], "columns": []})
     if "error_key" in res:
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
+
 @router.delete("/plots/{plot_number}")
-async def delete_plot(plot_number):
+async def delete_plot(plot_number, current_user: User = Depends(get_current_user)):
     """
         Delete plot by plot_number
         @param (int) plot_number :  Plot number

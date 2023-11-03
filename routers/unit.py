@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Depends
 from pydantic import BaseModel
 from db import database as db
+from .user import get_current_user,User
 
 class Unit(BaseModel):
     data: dict
@@ -8,30 +9,30 @@ class Unit(BaseModel):
 
 router = APIRouter()
 
-# @router.get("/plots")
-# async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
-#     result = db.select("plot")
+@router.get("/units")
+async def get_unit(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+    result = db.select("unit")
 
-#     if not isinstance(result, dict) or 'results' not in result:
-#         return {'error': 'Invalid data structure for plots'}
+    if not isinstance(result, dict) or 'results' not in result:
+        return {'error': 'Invalid data structure for unit'}
 
-#     plots = result['results']
+    unit = result['results']
     
-#     # Sorting logic based on 'desc' and 'asc'
-#     key_to_sort_by = 'plot_number'
-#     if desc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
-#     elif asc:
-#         plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
+    # Sorting logic based on 'desc' and 'asc'
+    key_to_sort_by = 'unit'
+    if desc:
+        unit = sorted(unit, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+    elif asc:
+        unit = sorted(unit, key=lambda x: x.get(key_to_sort_by, 0))
 
-#     # we verify the input for limit
-#     if limit and limit > 0:
-#         plots = plots[:limit]
+    # we verify the input for limit
+    if limit and limit > 0:
+        unit = unit[:limit]
 
-#     return {'results': plots}
+    return {'results': unit}
 
 @router.get("/units/{unit}")
-async def get_unit_by_unit(unit):
+async def get_unit_by_unit(unit, current_user: User = Depends(get_current_user)):
     """
         Get unit by unit
         @param (int) unit :  unit
@@ -40,7 +41,7 @@ async def get_unit_by_unit(unit):
     return db.select_one("unit", "unit", unit)
 
 @router.post("/units")
-async def create_unit(unit: Unit):
+async def create_unit(unit: Unit, current_user: User = Depends(get_current_user)):
     """
         Insert a new unit
         @param (Unit) unit :  unit got in body
@@ -49,15 +50,15 @@ async def create_unit(unit: Unit):
     return db.insert("unit", unit.data)
 
 @router.put("/units/{unit_value}")
-async def replace_unit(unit_value, unit: Unit):
+async def replace_unit(unit_value, unit: Unit, current_user: User = Depends(get_current_user)):
     return db.update("unit", "unit", unit_value, unit.data, {"pk_columns": [], "columns": ["unit"]})
 
 @router.patch("/units/{unit_value}")
-async def modify_unit(unit_value, unit: Unit):
+async def modify_unit(unit_value, unit: Unit, current_user: User = Depends(get_current_user)):
     return db.update("unit", "unit", unit_value, unit.data, {"pk_columns": [], "columns": ["unit"]})
 
 @router.delete("/units/{unit_value}")
-async def delete_unit(unit_value):
+async def delete_unit(unit_value, current_user: User = Depends(get_current_user)):
     """
         Delete unit by unit value
         @param (str) unit_value :  unit value
