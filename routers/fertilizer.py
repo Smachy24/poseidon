@@ -10,7 +10,7 @@ class Fertilizer(BaseModel):
 router = APIRouter()
 
 @router.get("/fertilizers")
-async def get_fertilizers(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+async def get_fertilizers(limit: int = Query(None, gt=0),unit: str = None,  desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
     result = db.select("fertilizer")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -28,6 +28,10 @@ async def get_fertilizers(limit: int = Query(None, gt=0), desc: bool = False, as
     # we verify the input for limit
     if limit and limit > 0:
         fertilizers = fertilizers[:limit]
+        
+    # we verify the input for unit
+    if unit:
+        fertilizers = [fertilizer for fertilizer in fertilizers if fertilizer['unit'] == unit]
 
     return {'results': fertilizers}
 
