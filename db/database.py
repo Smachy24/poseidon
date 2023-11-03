@@ -165,6 +165,7 @@ def insert(table, data):
         return {"status": "Sucess", "message": "Insertion successful"}
 
     except psycopg2.errors.SyntaxError as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -174,7 +175,7 @@ def insert(table, data):
 
     # Primary key already exists
     except psycopg2.errors.UniqueViolation as e:
-
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -183,6 +184,7 @@ def insert(table, data):
     
     # Some fields does not exist
     except psycopg2.errors.UndefinedColumn as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -191,6 +193,7 @@ def insert(table, data):
 
     # Fields with constraint not null are empty
     except psycopg2.errors.NotNullViolation as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -199,6 +202,7 @@ def insert(table, data):
 
     # Columns data types are incorrect
     except psycopg2.errors.DatatypeMismatch as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -207,6 +211,7 @@ def insert(table, data):
 
     # Foreign key does not exist in table
     except psycopg2.errors.ForeignKeyViolation as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -214,6 +219,7 @@ def insert(table, data):
         raise HTTPException(status_code=409, detail={"status" : "error","code": 409, "message": f"This foreign key does not exist", "description": e.pgerror})
 
     except Exception as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -242,12 +248,14 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
     try:
         select_one(table, pk_column_where, pk_value)
     except:
+       conn.rollback()
        with open('agriculture.log', 'a') as log_file:
            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
            log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
        select_one(table, pk_column_where, pk_value)
     
     if not all(a in data.keys() for a in columns["columns"]):
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: You must modify all the keys: {columns['columns']} de type Exception\n")
@@ -260,6 +268,7 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
         for key in data.keys():
             if key in columns["pk_columns"]:
                 with open('agriculture.log', 'a') as log_file:
+                    conn.rollback()
                     current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {f'You can not modify {key} (primary key)'} de type Exception\n")
                 return {"error_key":key}
@@ -280,6 +289,7 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
         return {"status": "Success", "message": "Update successful"}
    
     except psycopg2.errors.SyntaxError as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -288,6 +298,7 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
 
      # Some fields does not exist
     except psycopg2.errors.UndefinedColumn as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -297,6 +308,7 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
 
     # Columns data types are incorrect
     except psycopg2.errors.DatatypeMismatch as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -305,6 +317,7 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
 
     # Foreign key does not exist in table
     except psycopg2.errors.ForeignKeyViolation as e:
+        conn.rollback()
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
@@ -314,6 +327,7 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
     
 
     except Exception as e:
+        conn.rollback()
         error_result = {"error": str(e), "type": e.__class__.__name__}
 
         with open('agriculture.log', 'a') as log_file:
@@ -357,6 +371,7 @@ def delete(table, pk_column, pk_value):
 
         
     except Exception as e:
+        conn.rollback()
         error_result = {"error": str(e), "type": e.__class__.__name__}
     
         with open('agriculture.log', 'a') as log_file:
