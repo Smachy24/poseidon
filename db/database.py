@@ -52,6 +52,7 @@ def select(table):
         error_result = {"error": str(e)}
 
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'select' (Call {select_function_call_count}) encountered an error: {error_result}\n")
 
         return error_result
