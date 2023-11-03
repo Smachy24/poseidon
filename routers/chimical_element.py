@@ -89,6 +89,7 @@ async def replace_unit(element_code, chimical_element: ChimicalElement, current_
     res = db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": ["unit", "wording_element"]})
 
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
@@ -108,6 +109,7 @@ async def modify_chimical_element(element_code, chimical_element: ChimicalElemen
     res =  db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": []})
 
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 

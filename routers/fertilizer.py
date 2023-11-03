@@ -96,6 +96,7 @@ async def replace_fertilizer(id_fertilizer, fertilizer: Fertilizer, current_user
 
     res = db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data, {"pk_columns": ["id_fertilizer"], "columns": ["unit", "production_name"]})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
@@ -114,6 +115,7 @@ async def modify_fertilizer(id_fertilizer, fertilizer: Fertilizer, current_user:
 
     res =  db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data, {"pk_columns": ["id_fertilizer"], "columns": []})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
