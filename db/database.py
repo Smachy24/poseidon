@@ -20,6 +20,14 @@ insert_function_call_count = 0
 
 
 def select(table):
+    
+    """
+    Retrieve all records from the specified table.
+
+    @param (str) table : The name of the table to select records from.
+    @return (dict) : A dictionary containing the selected records.
+    """
+
     global select_function_call_count
     select_function_call_count += 1
 
@@ -63,6 +71,17 @@ def select(table):
 
 
 def select_one(table, pk_column, pk_value):
+
+    """
+    Retrieve a single record from the specified table based on the primary key.
+
+    @param (str) table : The name of the table to select the record from.
+    @param (str) pk_column : The primary key column name.
+    @param pk_value : The value of the primary key to identify the record.
+
+    @return (dict) : A dictionary containing the selected record.
+    """
+
     global select_one_function_call_count
     select_one_function_call_count += 1
 
@@ -115,6 +134,16 @@ def select_one(table, pk_column, pk_value):
 
 
 def insert(table, data):
+
+    """
+    Insert a new record into the specified table.
+
+    @param (str) table : The name of the table to insert the record into.
+    @param (dict) data : A dictionary containing the data to be inserted.
+
+    @return (dict) : A success message upon successful insertion.
+    """
+
     global insert_function_call_count
     insert_function_call_count += 1
     try:
@@ -195,6 +224,19 @@ def insert(table, data):
         cur.close()
 
 def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "columns": []}):
+
+    """
+    Update an existing record in the specified table.
+
+    @param (str) table : The name of the table to update the record in.
+    @param (str) pk_column_where : The primary key column name for identifying the record.
+    @param pk_value : The value of the primary key to identify the record.
+    @param (dict) data : A dictionary containing the updated data.
+    @param (dict) columns : A dictionary specifying primary key columns and other columns to be modified.
+
+    @return (dict) : A success message upon successful update.
+    """
+
     global update_function_call_count
     update_function_call_count += 1
     try:
@@ -286,6 +328,17 @@ def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "c
 
 
 def delete(table, pk_column, pk_value):
+
+    """
+    Delete a record from the specified table based on the primary key.
+
+    @param (str) table : The name of the table to delete the record from.
+    @param (str) pk_column : The primary key column name.
+    @param pk_value : The value of the primary key to identify the record.
+
+    @return (dict) : A success message upon successful deletion.
+    """
+
     global delete_function_call_count
     delete_function_call_count += 1
     try:
