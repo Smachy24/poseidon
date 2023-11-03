@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from db import database as db
 
@@ -50,11 +50,20 @@ async def create_chimical_element(chimical_element: ChimicalElement):
 
 @router.put("/chimical-elements/{element_code}")
 async def replace_unit(element_code, chimical_element: ChimicalElement):
-    return db.update("chimical_element", "element_code", element_code, chimical_element.data)
+    res = db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": ["unit", "wording_element"]})
+
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
 
 @router.patch("/chimical-elements/{element_code}")
 async def modify_chimical_element(element_code, chimical_element: ChimicalElement):
-    return db.update("chimical_element", "element_code", element_code, chimical_element.data)
+    res =  db.update("chimical_element", "element_code", element_code, chimical_element.data, {"pk_columns": ["element_code"], "columns": []})
+
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
+
 
 @router.delete("/chimical-elements/{element_code}")
 async def delete_chimical_element(element_code):

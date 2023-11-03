@@ -64,7 +64,7 @@ async def replace_date(date_value, date: Date):
     date_value = datetime.strptime(date_value, "%d-%m-%Y").date()
     date_value = date_value.strftime("%Y-%m-%d")
 
-    return db.update("date", "date", date_value, date.data)
+    return db.update("date", "date", date_value, date.data, {"pk_columns": [], "columns": ["date"]})
 
 @router.patch("/dates/{date_value}")
 async def modify_date(date_value, date: Date):
@@ -73,7 +73,7 @@ async def modify_date(date_value, date: Date):
 
     date_value = datetime.strptime(date_value, "%d-%m-%Y").date()
     date_value = date_value.strftime("%Y-%m-%d")
-    return db.update("date", "date", date_value, date.data)
+    return db.update("date", "date", date_value, date.data, {"pk_columns": [], "columns": ["date"]})
 
 @router.delete("/dates/{date_value}")
 async def delete_datet(date_value):

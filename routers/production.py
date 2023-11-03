@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from db import database as db
 
@@ -50,11 +50,14 @@ async def create_production(production: Production):
 
 @router.put("/productions/{production_code}")
 async def replace_production(production_code, production: Production):
-    return db.update("production", "production_code", production_code, production.data)
+    return db.update("production", "production_code", production_code, production.data, {"pk_columns": ["production_code"], "columns": ["unit", "production_name"]})
 
 @router.patch("/productions/{production_code}")
 async def modify_production(production_code, production: Production):
-    return db.update("production", "production_code", production_code, production.data)
+    res =  db.update("production", "production_code", production_code, production.data, {"pk_columns": ["production_code"], "columns": []})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
 
 @router.delete("/productions/{production_code}")
 async def delete_production(production_code):
