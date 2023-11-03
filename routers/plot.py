@@ -3,112 +3,112 @@ from pydantic import BaseModel
 from db import database as db
 from .user import get_current_user, User
 
-class Fertilizer(BaseModel):
+class Plot(BaseModel):
     """
-    Represents a fertilizer.
+    Represents a plot.
 
-    @param (dict) data: Dictionary containing data for the fertilizer.
+    @param (dict) data: Dictionary containing data for the plot.
     """
     data: dict
 
 router = APIRouter()
 
-@router.get("/fertilizers")
-async def get_fertilizers(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+@router.get("/plots")
+async def get_plots(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
     """
-    Get a list of fertilizers.
+    Get a list of plots.
 
-    @param (int) limit: Maximum number of fertilizers to retrieve.
+    @param (int) limit: Maximum number of plots to retrieve.
     @param (bool) desc: Sort in descending order.
     @param (bool) asc: Sort in ascending order.
     @param (User) current_user: Current user object obtained from dependency.
 
-    @return (dict) : Dictionary containing a list of fertilizers.
+    @return (dict) : Dictionary containing a list of plots.
     """
-    result = db.select("fertilizer")
+    result = db.select("plot")
 
     if not isinstance(result, dict) or 'results' not in result:
-        return {'error': 'Invalid data structure for fertilizers'}
+        return {'error': 'Invalid data structure for plots'}
 
-    fertilizers = result['results']
+    plots = result['results']
     
     # Sorting logic based on 'desc' and 'asc'
-    key_to_sort_by = 'id_fertilizer'
+    key_to_sort_by = 'plot_number'
     if desc:
-        fertilizers = sorted(fertilizers, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
+        plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0), reverse=True)
     elif asc:
-        fertilizers = sorted(fertilizers, key=lambda x: x.get(key_to_sort_by, 0))
+        plots = sorted(plots, key=lambda x: x.get(key_to_sort_by, 0))
 
     # Verify the input for limit
     if limit and limit > 0:
-        fertilizers = fertilizers[:limit]
+        plots = plots[:limit]
 
-    return {'results': fertilizers}
+    return {'results': plots}
 
-@router.get("/fertilizers/{id_fertilizer}")
-async def get_fertilizer_by_id_fertilizer(id_fertilizer, current_user: User = Depends(get_current_user)):
+@router.get("/plots/{plot_number}")
+async def get_plot_by_plot_number(plot_number, current_user: User = Depends(get_current_user)):
     """
-    Get fertilizer by id_fertilizer.
+    Get plot by plot_number.
 
-    @param (int) id_fertilizer : Fertilizer id.
+    @param (int) plot_number : Plot id.
     @param (User) current_user: Current user object obtained from dependency.
 
     @return (json) : Message indicating success or error.
     """
-    return db.select_one("fertilizer", "id_fertilizer", id_fertilizer)
+    return db.select_one("plot", "plot_number", plot_number)
 
-@router.post("/fertilizers")
-async def create_fertilizer(fertilizer: Fertilizer, current_user: User = Depends(get_current_user)):
+@router.post("/plots")
+async def create_plot(plot: Plot, current_user: User = Depends(get_current_user)):
     """
-    Insert a new fertilizer.
+    Insert a new plot.
 
-    @param (Fertilizer) fertilizer : Fertilizer data.
+    @param (Plot) plot : Plot data.
     @param (User) current_user: Current user object obtained from dependency.
 
     @return (json) : Message indicating success or error.
     """
-    return db.insert("fertilizer", fertilizer.data)
+    return db.insert("plot", plot.data)
 
-@router.put("/fertilizers/{id_fertilizer}")
-async def replace_fertilizer(id_fertilizer, fertilizer: Fertilizer, current_user: User = Depends(get_current_user)):
+@router.put("/plots/{plot_number}")
+async def replace_plot(plot_number, plot: Plot, current_user: User = Depends(get_current_user)):
     """
-    Replace a fertilizer.
+    Replace a plot.
 
-    @param (int) id_fertilizer: Fertilizer id.
-    @param (Fertilizer) fertilizer : Fertilizer data.
+    @param (int) plot_number: Plot id.
+    @param (Plot) plot : Plot data.
     @param (User) current_user: Current user object obtained from dependency.
 
     @return (json) : Message indicating success or error.
     """
-    res = db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data, {"pk_columns": ["id_fertilizer"], "columns": ["unit", "production_name"]})
+    res = db.update("plot", "plot_number", plot_number, plot.data, {"pk_columns": ["plot_number"], "columns": ["unit", "production_name"]})
     if "error_key" in res:
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
-@router.patch("/fertilizers/{id_fertilizer}")
-async def modify_fertilizer(id_fertilizer, fertilizer: Fertilizer, current_user: User = Depends(get_current_user)):
+@router.patch("/plots/{plot_number}")
+async def modify_plot(plot_number, plot: Plot, current_user: User = Depends(get_current_user)):
     """
-    Modify a fertilizer.
+    Modify a plot.
 
-    @param (int) id_fertilizer: Fertilizer id.
-    @param (Fertilizer) fertilizer : Fertilizer data.
+    @param (int) plot_number: Plot id.
+    @param (Plot) plot : Plot data.
     @param (User) current_user: Current user object obtained from dependency.
 
     @return (json) : Message indicating success or error.
     """
-    res =  db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data, {"pk_columns": ["id_fertilizer"], "columns": []})
+    res =  db.update("plot", "plot_number", plot_number, plot.data, {"pk_columns": ["plot_number"], "columns": []})
     if "error_key" in res:
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
-@router.delete("/fertilizers/{id_fertilizer}")
-async def delete_fertilizer(id_fertilizer, current_user: User = Depends(get_current_user)):
+@router.delete("/plots/{plot_number}")
+async def delete_plot(plot_number, current_user: User = Depends(get_current_user)):
     """
-    Delete fertilizer by id_fertilizer.
+    Delete plot by plot_number.
 
-    @param (int) id_fertilizer : Fertilizer id.
+    @param (int) plot_number : Plot id.
     @param (User) current_user: Current user object obtained from dependency.
 
     @return (json) : Message indicating success or error.
     """
-    return db.delete("fertilizer", "id_fertilizer", id_fertilizer)
+    return db.delete("plot", "plot_number", plot_number)
