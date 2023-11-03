@@ -17,8 +17,8 @@ class Spread(BaseModel):
 router = APIRouter()
 
 @router.get("/spreads")
-async def get_spread(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
-   
+async def get_spread(limit: int = Query(None, gt=0),plot_number: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+
     """
     Get a list of spreads.
 
@@ -47,6 +47,10 @@ async def get_spread(limit: int = Query(None, gt=0), desc: bool = False, asc: bo
     # Verify the input for limit
     if limit and limit > 0:
         spread = spread[:limit]
+        
+    # we verify the input for plot_number
+    if plot_number and plot_number > 0:
+        spread = [s for s in spread if s['plot_number'] == plot_number]
 
     return {'results': spread}
 

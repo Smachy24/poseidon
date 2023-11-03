@@ -18,8 +18,8 @@ class ChimicalElement(BaseModel):
 router = APIRouter()
 
 @router.get("/chimical-elements")
-async def get_chimical_element(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
-    
+async def get_chimical_element(limit: int = Query(None, gt=0),unit: str = None , desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+ 
     """
     Get a list of chemical elements.
 
@@ -30,7 +30,7 @@ async def get_chimical_element(limit: int = Query(None, gt=0), desc: bool = Fals
 
     @return (dict) : Dictionary containing a list of chemical elements.
     """
-     
+
     result = db.select("chimical_element")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -48,6 +48,10 @@ async def get_chimical_element(limit: int = Query(None, gt=0), desc: bool = Fals
     # we verify the input for limit
     if limit and limit > 0:
         chimical_element = chimical_element[:limit]
+        
+    # we verify the input for unit
+    if unit:
+        chimical_element = [chimical_element for chimical_element in chimical_element if chimical_element['unit'] == unit]
 
     return {'results': chimical_element}
 
