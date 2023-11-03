@@ -82,6 +82,7 @@ async def replace_possess(id_fertilizer, possess: Possess, current_user: User = 
     """
     res =  db.update("possess", "id_fertilizer", id_fertilizer, possess.data, {"pk_columns": ["id_fertilizer", "element_code"], "columns": ["value"]})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
@@ -98,6 +99,7 @@ async def modify_possess(id_fertilizer, possess: Possess, current_user: User = D
     """
     res =  db.update("possess", "id_fertilizer", id_fertilizer, possess.data, {"pk_columns": ["id_fertilizer", "element_code"], "columns": []})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 

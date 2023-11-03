@@ -97,6 +97,7 @@ async def replace_spread(id_fertilizer, spread: Spread, current_user: User = Dep
 
     res = db.update("spread", "id_fertilizer", id_fertilizer, spread.data, {"pk_columns": ["id_fertilizer", "plot_number"], "columns": ["date", "quantity_spread"]})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
@@ -115,6 +116,7 @@ async def modify_spread(id_fertilizer, spread: Spread, current_user: User = Depe
 
     res = db.update("spread", "id_fertilizer", id_fertilizer, spread.data, {"pk_columns": ["id_fertilizer", "plot_number"], "columns": []})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 

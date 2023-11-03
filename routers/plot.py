@@ -88,6 +88,7 @@ async def replace_plot(plot_number, plot: Plot, current_user: User = Depends(get
     """
     res = db.update("plot", "plot_number", plot_number, plot.data, {"pk_columns": ["plot_number"], "columns": ["unit", "production_name"]})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
@@ -104,6 +105,7 @@ async def modify_plot(plot_number, plot: Plot, current_user: User = Depends(get_
     """
     res =  db.update("plot", "plot_number", plot_number, plot.data, {"pk_columns": ["plot_number"], "columns": []})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 

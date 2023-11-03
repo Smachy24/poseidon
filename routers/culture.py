@@ -88,6 +88,7 @@ async def replace_culture(id_culture, culture: Culture, current_user: User = Dep
 
     res = db.update("culture", "id_culture", id_culture, culture.data,{"pk_columns": ["id_culture"], "columns": ["plot_number", "production_code", "start_date", "end_date", "quantity_harvested"]})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
@@ -106,6 +107,7 @@ async def modify_culture(id_culture, culture: Culture, current_user: User = Depe
     
     res = db.update("culture", "id_culture", id_culture, culture.data, {"pk_columns": ["id_culture"], "columns": []})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 

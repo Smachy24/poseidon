@@ -95,7 +95,12 @@ async def replace_production(production_code, production: Production, current_us
     @return (json) : Message indicating success or error.
     """
 
-    return db.update("production", "production_code", production_code, production.data, {"pk_columns": ["production_code"], "columns": ["unit", "production_name"]})
+    res = db.update("production", "production_code", production_code, production.data, {"pk_columns": ["production_code"], "columns": ["unit", "production_name"]})
+    if "error_key" in res:
+        db.conn.rollback()
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
+
 
 @router.patch("/productions/{production_code}")
 async def modify_production(production_code, production: Production, current_user: User = Depends(get_current_user)):
@@ -112,6 +117,7 @@ async def modify_production(production_code, production: Production, current_use
 
     res =  db.update("production", "production_code", production_code, production.data, {"pk_columns": ["production_code"], "columns": []})
     if "error_key" in res:
+        db.conn.rollback()
         raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
     return res
 
