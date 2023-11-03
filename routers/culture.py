@@ -10,7 +10,7 @@ class Culture(BaseModel):
 router = APIRouter()
 
 @router.get("/cultures")
-async def get_culture(limit: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+async def get_culture(limit: int = Query(None, gt=0), quantity_harvested: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
     result = db.select("culture")
 
     if not isinstance(result, dict) or 'results' not in result:
@@ -28,6 +28,10 @@ async def get_culture(limit: int = Query(None, gt=0), desc: bool = False, asc: b
     # we verify the input for limit
     if limit and limit > 0:
         culture = culture[:limit]
+        
+    # we verify the input for quantity_harvested
+    if quantity_harvested and quantity_harvested > 0:
+        culture = [x for x in culture if x['quantity_harvested'] >= quantity_harvested]
 
     return {'results': culture}
 
