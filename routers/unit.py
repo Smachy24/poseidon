@@ -51,11 +51,11 @@ async def create_unit(unit: Unit, current_user: User = Depends(get_current_user)
 
 @router.put("/units/{unit_value}")
 async def replace_unit(unit_value, unit: Unit, current_user: User = Depends(get_current_user)):
-    return db.update("unit", "unit", unit_value, unit.data)
+    return db.update("unit", "unit", unit_value, unit.data, {"pk_columns": [], "columns": ["unit"]})
 
 @router.patch("/units/{unit_value}")
 async def modify_unit(unit_value, unit: Unit, current_user: User = Depends(get_current_user)):
-    return db.update("unit", "unit", unit_value, unit.data)
+    return db.update("unit", "unit", unit_value, unit.data, {"pk_columns": [], "columns": ["unit"]})
 
 @router.delete("/units/{unit_value}")
 async def delete_unit(unit_value, current_user: User = Depends(get_current_user)):

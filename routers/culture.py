@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
+
 from pydantic import BaseModel
 from db import database as db
 from .user import get_current_user,User
@@ -51,11 +52,18 @@ async def create_culture(culture: Culture, current_user: User = Depends(get_curr
 
 @router.put("/cultures/{id_culture}")
 async def replace_culture(id_culture, culture: Culture, current_user: User = Depends(get_current_user)):
-    return db.update("culture", "id_culture", id_culture, culture.data)
+    res = db.update("culture", "id_culture", id_culture, culture.data,{"pk_columns": ["id_culture"], "columns": ["plot_number", "production_code", "start_date", "end_date", "quantity_harvested"]})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
 
 @router.patch("/cultures/{id_culture}")
 async def modify_culture(id_culture, culture: Culture, current_user: User = Depends(get_current_user)):
-    return db.update("culture", "id_culture", id_culture, culture.data)
+    res = db.update("culture", "id_culture", id_culture, culture.data, {"pk_columns": ["id_culture"], "columns": []})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
+
 
 @router.delete("/cultures/{id_culture}")
 async def delete_culture(id_culture, current_user: User = Depends(get_current_user)):

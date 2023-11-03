@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
+
 from pydantic import BaseModel
 from db import database as db
 from .user import get_current_user,User
@@ -51,11 +52,18 @@ async def create_fertilizer(fertilizer: Fertilizer, current_user: User = Depends
 
 @router.put("/fertilizers/{id_fertilizer}")
 async def replace_unit(id_fertilizer, fertilizer: Fertilizer, current_user: User = Depends(get_current_user)):
-    return db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data)
+    res = db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data, {"pk_columns": ["id_fertilizer"], "columns": ["unit", "production_name"]})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
 
 @router.patch("/fertilizers/{id_fertilizer}")
 async def modify_fertilizer(id_fertilizer, fertilizer: Fertilizer, current_user: User = Depends(get_current_user)):
-    return db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data)
+    res =  db.update("fertilizer", "id_fertilizer", id_fertilizer, fertilizer.data, {"pk_columns": ["id_fertilizer"], "columns": []})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
+
 
 @router.delete("/fertilizers/{id_fertilizer}")
 async def delete_fertilizer(id_fertilizer, current_user: User = Depends(get_current_user)):

@@ -1,7 +1,7 @@
 import psycopg2
 from db import constants
 import datetime
-
+from fastapi import HTTPException
 # Connect to your postgres DB
 conn = psycopg2.connect(f"dbname={constants.DBNAME} user={constants.USER} password={constants.PASSWORD}")
 
@@ -85,23 +85,37 @@ def select_one(table, pk_column, pk_value):
 
         return {"result": row_data}
 
-
-
-
-    except Exception as e:
-        error_result = {"error": str(e)}
+    # Id must be a number
+    except psycopg2.errors.InvalidTextRepresentation  as e:
 
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {error_result}\n")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"{pk_column} must be a number"})
 
-        return error_result
+    # Id does not exist
+    except TypeError as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+
+        raise HTTPException(status_code=404, detail={"status" : "error","code": 404, "message": f"{pk_column} : {pk_value} does not exist"})
+
+    except Exception as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {select_one_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"An unexpected error has occurred"})
 
     finally:
         cursor.close()
 
 
 def insert(table, data):
+    global insert_function_call_count
+    insert_function_call_count += 1
     try:
         cur = conn.cursor()
         keys = data.keys()
@@ -116,47 +130,148 @@ def insert(table, data):
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'insert' (Call {insert_function_call_count}) called with parameters: {table, data}. Returned: Succesfull \n")
-
+    
         
         return {"status": "Sucess", "message": "Insertion successful"}
 
-    
-    except Exception as e:
-        error_result = {"error": str(e)}
+    except psycopg2.errors.SyntaxError as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"Data must not be empty"})
+
+
+    # Primary key already exists
+    except psycopg2.errors.UniqueViolation as e:
 
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_file.write(f"{current_time} - Function 'insert' (Call {insert_function_call_count}) encountered an error: {error_result}\n")
-
-        return error_result
+            log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
         
+        raise HTTPException(status_code=409, detail={"status" : "error","code": 409, "message": f"This primary key already exists", "description": e.pgerror})
+    
+    # Some fields does not exist
+    except psycopg2.errors.UndefinedColumn as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"Columns are undefined", "description": e.pgerror})
+
+    # Fields with constraint not null are empty
+    except psycopg2.errors.NotNullViolation as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"One or many columns are missing", "description": e.pgerror})
+
+    # Columns data types are incorrect
+    except psycopg2.errors.DatatypeMismatch as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"One or many data types are incorrect", "description": e.pgerror})
+
+    # Foreign key does not exist in table
+    except psycopg2.errors.ForeignKeyViolation as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=409, detail={"status" : "error","code": 409, "message": f"This foreign key does not exist", "description": e.pgerror})
+
+    except Exception as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {insert_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"An unexpected error has occurred"})
+
     finally:
         cur.close()
 
-def update(table, pk_column, pk_value, data):
+def update(table, pk_column_where, pk_value, data, columns={"pk_columns": [], "columns": []}):
+    global update_function_call_count
+    update_function_call_count += 1
+    try:
+        select_one(table, pk_column_where, pk_value)
+    except:
+       with open('agriculture.log', 'a') as log_file:
+           current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+           log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
+       select_one(table, pk_column_where, pk_value)
+    
+    if not all(a in data.keys() for a in columns["columns"]):
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: You must modify all the keys: {columns['columns']} de type Exception\n")
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You must modify all these columns : {columns['columns']}"})
+
     try:
         cur = conn.cursor()
-       
+        
         update_columns = []
         for key in data.keys():
+            if key in columns["pk_columns"]:
+                with open('agriculture.log', 'a') as log_file:
+                    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {f'You can not modify {key} (primary key)'} de type Exception\n")
+                return {"error_key":key}
             update_columns.append(f"{key} = %s")
+
+  
 
         conditions = ', '.join(update_columns)
 
-
-        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column} = %s;"
+        sql = f"UPDATE {table} SET {conditions} WHERE {pk_column_where} = %s;"
         cur.execute(sql, list(data.values()) + [pk_value])
         conn.commit()
       
-       
-        
         with open('agriculture.log', 'a') as log_file:
            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
            log_file.write(f"{current_time} - Function 'update' (Call {update_function_call_count}) called with parameters: {table, id, data}. Returned: Succesfull \n")
       
         return {"status": "Success", "message": "Update successful"}
+   
+    except psycopg2.errors.SyntaxError as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"Data must not be empty"})
+
+     # Some fields does not exist
+    except psycopg2.errors.UndefinedColumn as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"Columns are undefined", "description": e.pgerror})
+
+
+    # Columns data types are incorrect
+    except psycopg2.errors.DatatypeMismatch as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"One or many data types are incorrect", "description": e.pgerror})
+
+    # Foreign key does not exist in table
+    except psycopg2.errors.ForeignKeyViolation as e:
+        with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            log_file.write(f"{current_time} - Function 'select_one' (Call {update_function_call_count}) encountered an error: {str(e)} de type {e.__class__.__name__}\n")
+        
+        raise HTTPException(status_code=409, detail={"status" : "error","code": 409, "message": f"This foreign key does not exist", "description": e.pgerror})
+
+    
+
     except Exception as e:
-        error_result = {"error": str(e)}
+        error_result = {"error": str(e), "type": e.__class__.__name__}
 
         with open('agriculture.log', 'a') as log_file:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -170,9 +285,13 @@ def update(table, pk_column, pk_value, data):
 
 
 def delete(table, pk_column, pk_value):
+    global delete_function_call_count
+    delete_function_call_count += 1
     try:
         cur = conn.cursor()
+        data = select_one(table, pk_column, pk_value)
         sql = f"DELETE FROM {table} WHERE {pk_column} = %s;"
+
         cur.execute(sql, [pk_value])
         conn.commit()
         
@@ -184,12 +303,13 @@ def delete(table, pk_column, pk_value):
 
         
     except Exception as e:
-        error_result = {"error": str(e)}
-
+        error_result = {"error": str(e), "type": e.__class__.__name__}
+    
         with open('agriculture.log', 'a') as log_file:
+            current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             log_file.write(f"{current_time} - Function 'delete' (Call {delete_function_call_count}) encountered an error: {error_result}\n")
 
-        return error_result
+        data = select_one(table, pk_column, pk_value)
 
     finally:
         cur.close()

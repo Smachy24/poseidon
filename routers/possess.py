@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends
+
 from pydantic import BaseModel
 from db import database as db
 from .user import get_current_user,User
@@ -50,11 +51,18 @@ async def create_possess(possess: Possess, current_user: User = Depends(get_curr
 
 @router.put("/possess/{id_fertilizer}")
 async def replace_possess(id_fertilizer, possess: Possess, current_user: User = Depends(get_current_user)):
-    return db.update("possess", "id_fertilizer", id_fertilizer, possess.data)
+    res =  db.update("possess", "id_fertilizer", id_fertilizer, possess.data, {"pk_columns": ["id_fertilizer", "element_code"], "columns": ["value"]})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
 
 @router.patch("/possess/{id_fertilizer}")
 async def modify_possess(id_fertilizer, possess: Possess, current_user: User = Depends(get_current_user)):
-    return db.update("possess", "id_fertilizer", id_fertilizer, possess.data)
+    res =  db.update("possess", "id_fertilizer", id_fertilizer, possess.data, {"pk_columns": ["id_fertilizer", "element_code"], "columns": []})
+    if "error_key" in res:
+        raise HTTPException(status_code=400, detail={"status" : "error","code": 400, "message": f"You can not modify {res['error_key']} (primary key)"})
+    return res
+
 
 @router.delete("/possess/{id_fertilizer}")
 async def delete_possess(id_fertilizer):
