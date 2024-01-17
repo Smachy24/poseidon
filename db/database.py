@@ -3,7 +3,7 @@ from db import constants
 import datetime
 from fastapi import HTTPException
 # Connect to your postgres DB
-conn = psycopg2.connect(f"dbname={constants.DBNAME} user={constants.USER} password={constants.PASSWORD}")
+conn = psycopg2.connect(f"host={constants.HOST},dbname={constants.DBNAME} user={constants.USER} password={constants.PASSWORD}")
 
 print("Connection réussie")
 
