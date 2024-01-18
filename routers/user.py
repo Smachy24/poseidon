@@ -41,9 +41,9 @@ class User(BaseModel):
     @param (bool | None) disabled : Indique si l'utilisateur est désactivé (facultatif)
     """
     username: str
-    email: str | None = None
-    full_name: str | None = None
-    disabled: bool | None = None
+    email: str
+    full_name: str
+    disabled: bool
 
 
 class UserInDB(User):
