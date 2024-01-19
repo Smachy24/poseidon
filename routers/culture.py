@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 
 from pydantic import BaseModel
 from db import database as db
-from .user import get_current_user,User
 
 class Culture(BaseModel):
     
@@ -18,7 +17,7 @@ class Culture(BaseModel):
 router = APIRouter()
 
 @router.get("/cultures")
-async def get_culture(limit: int = Query(None, gt=0), quantity_harvested: int = Query(None, gt=0), desc: bool = False, asc: bool = True, current_user: User = Depends(get_current_user)):
+async def get_culture(limit: int = Query(None, gt=0), quantity_harvested: int = Query(None, gt=0), desc: bool = False, asc: bool = True):
 
     """
     Get a list of cultures.
@@ -56,7 +55,7 @@ async def get_culture(limit: int = Query(None, gt=0), quantity_harvested: int = 
     return {'results': culture}
 
 @router.get("/cultures/{id_culture}")
-async def get_culture_by_id(id_culture, current_user: User = Depends(get_current_user)):
+async def get_culture_by_id(id_culture):
     """
         Get culture by id_culture
         @param (int) id_culture :  Culture id
@@ -65,7 +64,7 @@ async def get_culture_by_id(id_culture, current_user: User = Depends(get_current
     return db.select_one("culture", "id_culture", id_culture)
 
 @router.post("/cultures")
-async def create_culture(culture: Culture, current_user: User = Depends(get_current_user)):
+async def create_culture(culture: Culture):
     """
         Insert a new culture
         @param (Culture) culture :  culture got in body
@@ -74,7 +73,7 @@ async def create_culture(culture: Culture, current_user: User = Depends(get_curr
     return db.insert("culture", culture.data)
 
 @router.put("/cultures/{id_culture}")
-async def replace_culture(id_culture, culture: Culture, current_user: User = Depends(get_current_user)):
+async def replace_culture(id_culture, culture: Culture):
     
     """
     Replace a culture.
@@ -93,7 +92,7 @@ async def replace_culture(id_culture, culture: Culture, current_user: User = Dep
     return res
 
 @router.patch("/cultures/{id_culture}")
-async def modify_culture(id_culture, culture: Culture, current_user: User = Depends(get_current_user)):
+async def modify_culture(id_culture, culture: Culture):
 
     """
     Modify a culture.
@@ -113,7 +112,7 @@ async def modify_culture(id_culture, culture: Culture, current_user: User = Depe
 
 
 @router.delete("/cultures/{id_culture}")
-async def delete_culture(id_culture, current_user: User = Depends(get_current_user)):
+async def delete_culture(id_culture):
     """
         Delete culture by id_culture
         @param (int) id_culture :  culture id
