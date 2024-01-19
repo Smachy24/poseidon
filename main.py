@@ -6,7 +6,7 @@ from routers import user,plot, culture, date, unit, production, fertilizer, chim
 app = FastAPI()
 
 origins = [
-    "http:10.57.35.82"
+    "http://10.57.35.82"
 ]
 
 app.add_middleware(
